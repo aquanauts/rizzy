@@ -1,5 +1,4 @@
 use chrono::{DateTime, Duration, NaiveDateTime, TimeZone};
-use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
 use lazy_static::lazy_static;
 use regex::Captures;
@@ -87,7 +86,7 @@ impl Tizzy {
 
 #[cfg(test)]
 mod tests {
-    use super::{Chicago, New_York};
+    use chrono_tz::America::{Chicago, New_York};
     use super::Tizzy;
 
     #[test]
