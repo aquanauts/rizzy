@@ -4,7 +4,7 @@ use lazy_static::lazy_static;
 use regex::Captures;
 use regex::Regex;
 
-pub struct Tizzy {
+pub struct Rizzy {
     tz: Tz,
     format: Option<String>,
     epoch_nanos: bool,
@@ -26,9 +26,9 @@ fn fix_subsec(dt: &NaiveDateTime, num_sub_digits: usize) -> NaiveDateTime {
         .checked_add_signed(Duration::nanoseconds(ns_raw * multiplier)).unwrap()
 }
 
-impl Tizzy {
-    pub fn new(tz: Tz, format: Option<String>, epoch_nanos: bool) -> Tizzy {
-        Tizzy { tz, format, epoch_nanos }
+impl Rizzy {
+    pub fn new(tz: Tz, format: Option<String>, epoch_nanos: bool) -> Rizzy {
+        Rizzy { tz, format, epoch_nanos }
     }
 
     fn format_time(&self, dt: &NaiveDateTime) -> String {
@@ -87,80 +87,80 @@ impl Tizzy {
 #[cfg(test)]
 mod tests {
     use chrono_tz::America::{Chicago, New_York};
-    use super::Tizzy;
+    use super::Rizzy;
 
     #[test]
     fn should_replace_dates_1() {
-        let tizzy = Tizzy { tz: New_York, format: None, epoch_nanos: false };
+        let rizzy = Rizzy { tz: New_York, format: None, epoch_nanos: false };
         assert_eq!(
-            tizzy.handle_line("2020-08-27T12:45:37Z foobar"),
+            rizzy.handle_line("2020-08-27T12:45:37Z foobar"),
             "2020-08-27T08:45:37-04:00 foobar"
         );
     }
 
     #[test]
     fn should_replace_dates_2() {
-        let tizzy = Tizzy { tz: New_York, format: None, epoch_nanos: false };
+        let rizzy = Rizzy { tz: New_York, format: None, epoch_nanos: false };
         assert_eq!(
-            tizzy.handle_line("2020-08-27 13:30:00+00:00 foobar"),
+            rizzy.handle_line("2020-08-27 13:30:00+00:00 foobar"),
             "2020-08-27T09:30:00-04:00 foobar"
         );
     }
 
     #[test]
     fn should_replace_dates_3() {
-        let tizzy = Tizzy { tz: New_York, format: None, epoch_nanos: false };
+        let rizzy = Rizzy { tz: New_York, format: None, epoch_nanos: false };
         assert_eq!(
-            tizzy.handle_line("2020-08-27 12:45:43.728154+00:00 foobar"),
+            rizzy.handle_line("2020-08-27 12:45:43.728154+00:00 foobar"),
             "2020-08-27T08:45:43.728154-04:00 foobar"
         );
     }
 
     #[test]
     fn should_replace_dates_4() {
-        let tizzy = Tizzy { tz: New_York, format: None, epoch_nanos: false };
+        let rizzy = Rizzy { tz: New_York, format: None, epoch_nanos: false };
         assert_eq!(
-            tizzy.handle_line("2020-09-11 14:48:34+0000 foobar"),
+            rizzy.handle_line("2020-09-11 14:48:34+0000 foobar"),
             "2020-09-11T10:48:34-04:00 foobar"
         );
     }
 
     #[test]
     fn should_replace_dates_5() {
-        let tizzy = Tizzy { tz: Chicago, format: None, epoch_nanos: false };
+        let rizzy = Rizzy { tz: Chicago, format: None, epoch_nanos: false };
         assert_eq!(
-            tizzy.handle_line("2021-03-25 17:39:28.167391+00:00 foobar"),
+            rizzy.handle_line("2021-03-25 17:39:28.167391+00:00 foobar"),
             "2021-03-25T12:39:28.167391-05:00 foobar"
         );
     }
 
     #[test]
     fn should_replace_dates_6() {
-        let tizzy = Tizzy { tz: Chicago, format: None, epoch_nanos: false };
+        let rizzy = Rizzy { tz: Chicago, format: None, epoch_nanos: false };
         assert_eq!(
-            tizzy.handle_line("2020-08-27 12:45:43.728154+00:00 foobar"),
+            rizzy.handle_line("2020-08-27 12:45:43.728154+00:00 foobar"),
             "2020-08-27T07:45:43.728154-05:00 foobar"
         );
     }
 
     #[test]
     fn should_replace_multiple_matches() {
-        let tizzy = Tizzy { tz: Chicago, format: None, epoch_nanos: false };
+        let rizzy = Rizzy { tz: Chicago, format: None, epoch_nanos: false };
         assert_eq!(
-            tizzy.handle_line("2020-08-27 12:45:43.728154+00:00 foo 2020-08-27T12:45:37Z"),
+            rizzy.handle_line("2020-08-27 12:45:43.728154+00:00 foo 2020-08-27T12:45:37Z"),
             "2020-08-27T07:45:43.728154-05:00 foo 2020-08-27T07:45:37-05:00"
         );
     }
 
     #[test]
     fn should_apply_format() {
-        let tizzy = Tizzy { tz: New_York, format: Option::from("%H:%M:%S".to_string()), epoch_nanos: false };
-        assert_eq!(tizzy.handle_line("2020-09-11 14:48:34+0000 foobar"), "10:48:34 foobar");
+        let rizzy = Rizzy { tz: New_York, format: Option::from("%H:%M:%S".to_string()), epoch_nanos: false };
+        assert_eq!(rizzy.handle_line("2020-09-11 14:48:34+0000 foobar"), "10:48:34 foobar");
     }
 
     #[test]
     fn should_convert_epoch_nanos() {
-        let tizzy = Tizzy { tz: New_York, format: None, epoch_nanos: true };
-        assert_eq!(tizzy.handle_line("1607965978437104000 foobar"), "2020-12-14T12:12:58.437104-05:00 foobar");
+        let rizzy = Rizzy { tz: New_York, format: None, epoch_nanos: true };
+        assert_eq!(rizzy.handle_line("1607965978437104000 foobar"), "2020-12-14T12:12:58.437104-05:00 foobar");
     }
 }

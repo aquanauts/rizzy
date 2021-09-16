@@ -234,6 +234,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f497285884f3fcff424ffc933e56d7cbca511def0c9831a7f9b5f6153e3cc89b"
 
 [[package]]
+name = "rizzy"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "chrono-tz",
+ "clap",
+ "lazy_static",
+ "regex",
+]
+
+[[package]]
 name = "strsim"
 version = "0.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -277,17 +288,6 @@ dependencies = [
  "libc",
  "wasi",
  "winapi",
-]
-
-[[package]]
-name = "tizzy-rs"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "chrono-tz",
- "clap",
- "lazy_static",
- "regex",
 ]
 
 [[package]]

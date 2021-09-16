@@ -7,9 +7,9 @@ use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
 use clap::{AppSettings, Clap};
 
-use crate::tizzy::Tizzy;
+use crate::rizzy::Rizzy;
 
-mod tizzy;
+mod rizzy;
 
 
 #[derive(Clap)]
@@ -53,10 +53,10 @@ fn get_timezone(opts: &Opts) -> Tz {
 
 fn main() {
     let opts: Opts = Opts::parse();
-    let tizzy = Tizzy::new(get_timezone(&opts), opts.format, opts.convert_epoch_nanos);
+    let rizzy = Rizzy::new(get_timezone(&opts), opts.format, opts.convert_epoch_nanos);
 
     let stdin = io::stdin();
     for line in stdin.lock().lines() {
-        println!("{}", tizzy.handle_line(&line.unwrap()));
+        println!("{}", rizzy.handle_line(&line.unwrap()));
     }
 }
