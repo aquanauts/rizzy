@@ -87,6 +87,7 @@ impl Rizzy {
 #[cfg(test)]
 mod tests {
     use chrono_tz::America::{Chicago, New_York};
+
     use super::Rizzy;
 
     #[test]

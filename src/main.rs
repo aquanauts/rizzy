@@ -13,7 +13,11 @@ mod rizzy;
 
 
 #[derive(Clap)]
-#[clap(setting = AppSettings::ColoredHelp)]
+#[clap(
+setting = AppSettings::ColoredHelp,
+setting = AppSettings::DeriveDisplayOrder,
+about = "Filter text lines, converting any encountered times to a localized timezone."
+)]
 struct Opts {
     /// Use New York timezone
     #[clap(long)]
@@ -27,7 +31,7 @@ struct Opts {
     /// Convert nanos since epoch
     #[clap(short = 'n', long)]
     convert_epoch_nanos: bool,
-    /// Use FORMAT as the strftime format instead of RFC3322
+    /// Use FORMAT as the strftime format instead of RFC3339
     #[clap(short, long)]
     format: Option<String>,
 }
