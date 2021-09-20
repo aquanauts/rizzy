@@ -5,7 +5,7 @@ use std::io::BufRead;
 
 use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
-use clap::{AppSettings, Clap};
+use clap::{AppSettings, Clap, crate_authors, crate_description, crate_license, crate_version};
 
 use crate::rizzy::Rizzy;
 
@@ -16,7 +16,10 @@ mod rizzy;
 #[clap(
 setting = AppSettings::ColoredHelp,
 setting = AppSettings::DeriveDisplayOrder,
-about = "Filter text lines, converting any encountered times to a localized timezone."
+about = crate_description!(),
+version = crate_version!(),
+author = crate_authors!(),
+license = crate_license!()
 )]
 struct Opts {
     /// Use New York timezone
