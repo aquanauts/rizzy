@@ -5,12 +5,11 @@ use std::io::BufRead;
 
 use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
-use clap::{AppSettings, Clap, crate_authors, crate_description, crate_license, crate_version};
+use clap::{crate_authors, crate_description, crate_license, crate_version, AppSettings, Clap};
 
 use crate::rizzy::Rizzy;
 
 mod rizzy;
-
 
 #[derive(Clap)]
 #[clap(
@@ -42,19 +41,56 @@ struct Opts {
 fn parse_timezone(time_zone_str: &String) -> Tz {
     match time_zone_str.parse() {
         Ok(res) => res,
-        Err(e) => panic!("Could not parse timezone: {}, Error: {}", time_zone_str, e.to_string())
+        Err(e) => panic!(
+            "Could not parse timezone: {}, Error: {}",
+            time_zone_str,
+            e.to_string()
+        ),
     }
 }
 
 fn get_timezone(opts: &Opts) -> Tz {
     match opts {
-        Opts { nyc: true, chi: true, .. } => panic!("cannot use more than one timezone override"),
-        Opts { nyc: true, chi: false, zone: None, .. } => New_York,
-        Opts { nyc: false, chi: true, zone: None, .. } => Chicago,
-        Opts { nyc: true, chi: false, zone: Some(_), .. } => panic!("cannot supply --zone and an override"),
-        Opts { nyc: false, chi: true, zone: Some(_), .. } => panic!("cannot supply --zone and an override"),
-        Opts { nyc: false, chi: false, zone: Some(tz_string), .. } => parse_timezone(&tz_string),
-        Opts { nyc: false, chi: false, .. } => Chicago,
+        Opts {
+            nyc: true,
+            chi: true,
+            ..
+        } => panic!("cannot use more than one timezone override"),
+        Opts {
+            nyc: true,
+            chi: false,
+            zone: None,
+            ..
+        } => New_York,
+        Opts {
+            nyc: false,
+            chi: true,
+            zone: None,
+            ..
+        } => Chicago,
+        Opts {
+            nyc: true,
+            chi: false,
+            zone: Some(_),
+            ..
+        } => panic!("cannot supply --zone and an override"),
+        Opts {
+            nyc: false,
+            chi: true,
+            zone: Some(_),
+            ..
+        } => panic!("cannot supply --zone and an override"),
+        Opts {
+            nyc: false,
+            chi: false,
+            zone: Some(tz_string),
+            ..
+        } => parse_timezone(&tz_string),
+        Opts {
+            nyc: false,
+            chi: false,
+            ..
+        } => Chicago,
     }
 }
 
