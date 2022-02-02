@@ -60,7 +60,7 @@ impl Rizzy {
     pub fn handle_line(&self, line: &str) -> String {
         lazy_static! {
             static ref RE: Regex = Regex::new(r"\d{4}-\d{2}-\d{2}(?P<T>[ T])\d{2}:\d{2}:\d{2}(?P<sub>\.\d{3,9})?(?P<TZ>Z|[+-]\d{2}:?\d{2})").unwrap();
-            static ref NS_RE: Regex = Regex::new(r"\d{19}").unwrap();
+            static ref NS_RE: Regex = Regex::new(r"[0-9]{19}").unwrap();
         }
 
         let mut replaced = RE.replace_all(line, |caps: &Captures<'_>| {
@@ -163,5 +163,21 @@ mod tests {
     fn should_convert_epoch_nanos() {
         let rizzy = Rizzy { tz: New_York, format: None, epoch_nanos: true };
         assert_eq!(rizzy.handle_line("1607965978437104000 foobar"), "2020-12-14T12:12:58.437104-05:00 foobar");
+    }
+
+    /// Discovered this unusual input using fuzzing. ߈ is a valid digit,
+    /// but cannot be parsed as a decimal digit. Thus it matches on \d but not
+    /// on [0-9].
+    #[test]
+    fn should_convert_epoch_nanos_unusual_digits() {
+        let rizzy = Rizzy {
+            tz: New_York,
+            format: None,
+            epoch_nanos: true,
+        };
+        assert_eq!(
+            rizzy.handle_line("߈2500000001045182081 foobar"),
+            "߈2049-03-22T00:26:41.045182081-04:00 foobar"
+        );
     }
 }
