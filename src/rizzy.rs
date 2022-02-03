@@ -99,12 +99,17 @@ impl Rizzy {
         if self.epoch_nanos {
             replaced = NS_RE
                 .replace_all(&replaced, |caps: &Captures<'_>| {
-                    let ts: i64 = caps.get(0).unwrap().as_str().parse().unwrap();
-                    let utc_time = NaiveDateTime::from_timestamp(
-                        ts / 1_000_000_000,
-                        (ts % 1_000_000_000) as u32,
-                    );
-                    self.format_time(&utc_time)
+                    match caps.get(0).unwrap().as_str().parse::<i64>() {
+                        Ok(ts) => {
+                            let utc_time = NaiveDateTime::from_timestamp(
+                                ts / 1_000_000_000,
+                                (ts % 1_000_000_000) as u32,
+                            );
+                            self.format_time(&utc_time)
+                        }
+                        // On parsing error (if match is too big for i64), keep the original string.
+                        Err(_e) => caps.get(0).unwrap().as_str().to_string(),
+                    }
                 })
                 .to_string();
         }
@@ -249,6 +254,22 @@ mod tests {
         assert_eq!(
             rizzy.handle_line("߈2500000001045182081 foobar"),
             "߈2049-03-22T00:26:41.045182081-04:00 foobar"
+        );
+    }
+
+    /// Addresses Issue #2: https://github.com/aquanauts/rizzy/issues/2
+    /// This crashes: `echo '-9223372036854775808' | rizzy -n`
+    /// We "fix" this by just skipping the conversion.
+    #[test]
+    fn skip_conversion_on_maxint_epoch_nanos() {
+        let rizzy = Rizzy {
+            tz: New_York,
+            format: None,
+            epoch_nanos: true,
+        };
+        assert_eq!(
+            rizzy.handle_line("-9223372036854775808 foobar"),
+            "-9223372036854775808 foobar"
         );
     }
 }
