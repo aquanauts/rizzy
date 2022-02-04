@@ -34,3 +34,13 @@ Running `rizzy --help` gives more information, but basically:
 * Grab `rustup` - either from [the website](https://www.rust-lang.org/tools/install) or by `sudo snap install rustup --classic`.
 * Install the stable rust version: `rustup install stable`
 * Build the code with `cargo build`, or run with `cargo run`
+
+
+## Making a release
+
+* Bump the version in Cargo.toml
+* Run `cargo build` and `cargo test` to make sure everything's working and to ensure the `Cargo.toml` gets updated.
+* Commit!
+* Push and make sure all's well
+* Tag the version with `vXX.YY/ZZ`
+* Push the tag (`git push --tags`) which should kick things off automatically!
