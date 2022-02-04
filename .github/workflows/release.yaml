@@ -34,3 +34,6 @@ jobs:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           prerelease: true
           files: "**/rizzy"
+      - uses: katyo/publish-crates@v1
+        with:
+          registry-token: ${{ secrets.CARGO_REGISTRY_TOKEN }}
