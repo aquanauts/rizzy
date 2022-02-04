@@ -5,20 +5,18 @@ use std::io::BufRead;
 
 use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
-use clap::{crate_authors, crate_description, crate_license, crate_version, AppSettings, Clap};
+use clap::{crate_authors, crate_description, crate_version, AppSettings, Parser};
 
 use crate::rizzy::Rizzy;
 
 mod rizzy;
 
-#[derive(Clap)]
+#[derive(Parser, Debug)]
 #[clap(
-setting = AppSettings::ColoredHelp,
 setting = AppSettings::DeriveDisplayOrder,
 about = crate_description!(),
 version = crate_version!(),
-author = crate_authors!(),
-license = crate_license!()
+author = crate_authors!()
 )]
 struct Opts {
     /// Use New York timezone
