@@ -4,7 +4,11 @@ version = "0.1.2"
 edition = "2018"
 description = "Filter text lines, converting any encountered times to a localized timezone"
 authors = ["Matt Godbolt <matt.godbolt@aquatic.com>"]
+readme = "README.md"
 license-file = "LICENSE.md"
+repository = "https://github.com/aquanauts/rizzy"
+keywords = ["filter", "timezone"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 clap = "3.0.0-beta.4"
