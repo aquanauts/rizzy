@@ -1,6 +1,6 @@
 [package]
 name = "rizzy"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2018"
 description = "Filter text lines, converting any encountered times to a localized timezone"
 authors = ["Matt Godbolt <matt.godbolt@aquatic.com>"]
