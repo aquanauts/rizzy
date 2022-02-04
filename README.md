@@ -44,3 +44,4 @@ Running `rizzy --help` gives more information, but basically:
 * Push and make sure all's well
 * Tag the version with `vXX.YY/ZZ`
 * Push the tag (`git push --tags`) which should kick things off automatically!
+* Make sure all's well and then mark the release as current in GitHub (with some helpful explanation)
