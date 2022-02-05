@@ -1,7 +1,9 @@
 #![deny(warnings)]
 
+use std::fs::File;
 use std::io;
-use std::io::BufRead;
+use std::io::{BufRead};
+use std::path::Path;
 
 use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
@@ -14,9 +16,9 @@ mod rizzy;
 #[derive(Parser, Debug)]
 #[clap(
 setting = AppSettings::DeriveDisplayOrder,
-about = crate_description!(),
-version = crate_version!(),
-author = crate_authors!()
+about = crate_description ! (),
+version = crate_version ! (),
+author = crate_authors ! ()
 )]
 struct Opts {
     /// Use New York timezone
@@ -34,6 +36,8 @@ struct Opts {
     /// Use FORMAT as the strftime format instead of RFC3339
     #[clap(short, long)]
     format: Option<String>,
+    /// Read input from FILE (reads from stdin if not supplied)
+    file: Vec<String>,
 }
 
 fn parse_timezone(time_zone_str: &String) -> Tz {
@@ -92,12 +96,29 @@ fn get_timezone(opts: &Opts) -> Tz {
     }
 }
 
+// Shamelessly borrowed from the rust-by-example read_lines example.
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>> where P: AsRef<Path> {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
+}
+
 fn main() {
     let opts: Opts = Opts::parse();
     let rizzy = Rizzy::new(get_timezone(&opts), opts.format, opts.convert_epoch_nanos);
 
-    let stdin = io::stdin();
-    for line in stdin.lock().lines() {
-        println!("{}", rizzy.handle_line(&line.unwrap()));
+    if opts.file.is_empty() {
+        for line in io::stdin().lock().lines() {
+            println!("{}", rizzy.handle_line(&line.unwrap()));
+        }
+    } else {
+        for file in opts.file {
+            if let Ok(lines) = read_lines(&file) {
+                for line in lines {
+                    println!("{}", rizzy.handle_line(&line.unwrap()));
+                }
+            } else {
+                panic!("Failed to open file '{}'", file);
+            }
+        }
     }
 }
