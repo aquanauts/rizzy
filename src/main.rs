@@ -2,7 +2,7 @@
 
 use std::fs::File;
 use std::io;
-use std::io::{BufRead};
+use std::io::BufRead;
 use std::path::Path;
 
 use chrono_tz::America::{Chicago, New_York};
@@ -97,7 +97,10 @@ fn get_timezone(opts: &Opts) -> Tz {
 }
 
 // Shamelessly borrowed from the rust-by-example read_lines example.
-fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>> where P: AsRef<Path> {
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where
+    P: AsRef<Path>,
+{
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
 }
