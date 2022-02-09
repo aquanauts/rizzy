@@ -69,7 +69,6 @@ fn main() -> eyre::Result<()> {
 
     let opts: Opts = Opts::parse();
     let timezone = get_timezone(&opts)?;
-
     let rizzy = Rizzy::new(timezone, opts.format, opts.convert_epoch_nanos);
 
     if opts.file.is_empty() {
