@@ -42,48 +42,16 @@ struct Opts {
     file: Vec<String>,
 }
 
-fn get_timezone(opts: &Opts) -> Result<Tz, RizzyError> {
-    match opts {
-        Opts {
-            nyc: true,
-            chi: true,
-            ..
-        } => panic!("cannot use more than one timezone override"),
-        Opts {
-            nyc: true,
-            chi: false,
-            zone: None,
-            ..
-        } => Ok(New_York),
-        Opts {
-            nyc: false,
-            chi: true,
-            zone: None,
-            ..
-        } => Ok(Chicago),
-        Opts {
-            nyc: true,
-            chi: false,
-            zone: Some(_),
-            ..
-        } => panic!("cannot supply --zone and an override"),
-        Opts {
-            nyc: false,
-            chi: true,
-            zone: Some(_),
-            ..
-        } => panic!("cannot supply --zone and an override"),
-        Opts {
-            nyc: false,
-            chi: false,
-            zone: Some(tz_string),
-            ..
-        } => parse_timezone(&tz_string),
-        Opts {
-            nyc: false,
-            chi: false,
-            ..
-        } => Ok(Chicago),
+fn get_timezone(Opts { nyc, chi, zone, .. }: &Opts) -> Result<Tz, RizzyError> {
+    match (nyc, chi, zone) {
+        (true, true, _) => panic!("cannot use more than one timezone override"),
+        (true, false, None) => Ok(New_York),
+        (false, true, None) => Ok(Chicago),
+        (true, false, Some(_)) | (false, true, Some(_)) => {
+            panic!("cannot supply --zone and an override")
+        }
+        (false, false, Some(tz_string)) => parse_timezone(&tz_string),
+        (false, false, None) => Ok(Chicago),
     }
 }
 

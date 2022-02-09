@@ -32,7 +32,7 @@ mod tests {
     fn test_correct_spelling() {
         let guess = "America/Chicago";
         assert_eq!(
-            parse_timezone(&guess.to_string()),
+            parse_timezone(&guess.to_string()).unwrap(),
             chrono_tz::America::Chicago
         );
     }
