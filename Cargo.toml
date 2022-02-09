@@ -20,3 +20,7 @@ auto_correct_n_suggest = "1.0.0"
 eyre = "0.6.6"
 color-eyre = "0.6.0"
 thiserror = "1.0.30"
+
+[dev-dependencies]
+assert_cmd = "2.0.4"
+predicates = "2.1.1"
