@@ -5,6 +5,8 @@ use std::io;
 use std::io::BufRead;
 use std::path::Path;
 
+use ::rizzy::timezones::parse_timezone;
+use ::rizzy::RizzyError;
 use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
 use clap::{crate_authors, crate_description, crate_version, AppSettings, Parser};
@@ -40,18 +42,7 @@ struct Opts {
     file: Vec<String>,
 }
 
-fn parse_timezone(time_zone_str: &String) -> Tz {
-    match time_zone_str.parse() {
-        Ok(res) => res,
-        Err(e) => panic!(
-            "Could not parse timezone: {}, Error: {}",
-            time_zone_str,
-            e.to_string()
-        ),
-    }
-}
-
-fn get_timezone(opts: &Opts) -> Tz {
+fn get_timezone(opts: &Opts) -> Result<Tz, RizzyError> {
     match opts {
         Opts {
             nyc: true,
@@ -63,13 +54,13 @@ fn get_timezone(opts: &Opts) -> Tz {
             chi: false,
             zone: None,
             ..
-        } => New_York,
+        } => Ok(New_York),
         Opts {
             nyc: false,
             chi: true,
             zone: None,
             ..
-        } => Chicago,
+        } => Ok(Chicago),
         Opts {
             nyc: true,
             chi: false,
@@ -92,7 +83,7 @@ fn get_timezone(opts: &Opts) -> Tz {
             nyc: false,
             chi: false,
             ..
-        } => Chicago,
+        } => Ok(Chicago),
     }
 }
 
@@ -105,9 +96,13 @@ where
     Ok(io::BufReader::new(file).lines())
 }
 
-fn main() {
+fn main() -> eyre::Result<()> {
+    color_eyre::install()?;
+
     let opts: Opts = Opts::parse();
-    let rizzy = Rizzy::new(get_timezone(&opts), opts.format, opts.convert_epoch_nanos);
+    let timezone = get_timezone(&opts)?;
+
+    let rizzy = Rizzy::new(timezone, opts.format, opts.convert_epoch_nanos);
 
     if opts.file.is_empty() {
         for line in io::stdin().lock().lines() {
@@ -124,4 +119,5 @@ fn main() {
             }
         }
     }
+    Ok(())
 }
