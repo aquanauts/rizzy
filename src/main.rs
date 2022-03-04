@@ -4,6 +4,7 @@ use std::fs::File;
 use std::io;
 use std::io::BufRead;
 use std::path::Path;
+use std::process::exit;
 
 use ::rizzy::timezones::parse_timezone;
 use ::rizzy::RizzyError;
@@ -67,9 +68,7 @@ where
     Ok(io::BufReader::new(file).lines())
 }
 
-fn main() -> eyre::Result<()> {
-    color_eyre::install()?;
-
+fn run() -> eyre::Result<()> {
     let opts: Opts = Opts::parse();
     let timezone = get_timezone(&opts)?;
     let rizzy = Rizzy::new(timezone, opts.format, opts.convert_epoch_nanos);
@@ -88,4 +87,11 @@ fn main() -> eyre::Result<()> {
         }
     }
     Ok(())
+}
+
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("[rizzy] Error: {e}");
+        exit(1);
+    }
 }

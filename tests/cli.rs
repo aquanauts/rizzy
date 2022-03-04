@@ -9,6 +9,9 @@ fn test_timezone_spelling() {
         .arg("America/NewYork")
         .assert();
 
+    let stderr = String::from_utf8(assert.get_output().stderr.clone()).unwrap();
+    insta::assert_display_snapshot!(stderr);
+
     assert
         .failure()
         .stderr(predicate::str::contains("America/New_York"));
