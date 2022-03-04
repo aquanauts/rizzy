@@ -10,6 +10,7 @@ use ::rizzy::RizzyError;
 use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
 use clap::{crate_authors, crate_description, crate_version, AppSettings, Parser};
+use eyre::Context;
 
 use crate::rizzy::Rizzy;
 
@@ -44,12 +45,14 @@ struct Opts {
 
 fn get_timezone(Opts { nyc, chi, zone, .. }: &Opts) -> Result<Tz, RizzyError> {
     match (nyc, chi, zone) {
-        (true, true, _) => panic!("cannot use more than one timezone override"),
+        (true, true, _) => Err(RizzyError::InvalidArg(
+            "Cannot use more than one timezone override".to_string(),
+        )),
         (true, false, None) => Ok(New_York),
         (false, true, None) => Ok(Chicago),
-        (true, false, Some(_)) | (false, true, Some(_)) => {
-            panic!("cannot supply --zone and an override")
-        }
+        (true, false, Some(_)) | (false, true, Some(_)) => Err(RizzyError::InvalidArg(
+            "Cannot supply --zone and an override".to_string(),
+        )),
         (false, false, Some(tz_string)) => parse_timezone(&tz_string),
         (false, false, None) => Ok(Chicago),
     }
@@ -77,12 +80,10 @@ fn main() -> eyre::Result<()> {
         }
     } else {
         for file in opts.file {
-            if let Ok(lines) = read_lines(&file) {
-                for line in lines {
-                    println!("{}", rizzy.handle_line(&line.unwrap()));
-                }
-            } else {
-                panic!("Failed to open file '{}'", file);
+            let lines =
+                read_lines(&file).with_context(|| format!("Failed to open file '{}'", file))?;
+            for line in lines {
+                println!("{}", rizzy.handle_line(&line.unwrap()));
             }
         }
     }
