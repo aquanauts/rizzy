@@ -13,7 +13,7 @@ categories = ["command-line-utilities"]
 [dependencies]
 clap = { version = "~3.0.14", features = ["cargo", "derive"] }
 chrono = "0.4.19"
-chrono-tz = { git = "https://github.com/siedentop/chrono-tz", rev = "6bf301cf27efaa5e65d33d29c6de8180793a0bed" }
+chrono-tz = "0.6.1"
 lazy_static = "1.4.0"
 regex = "1.5.4"
 auto_correct_n_suggest = "1.0.0"

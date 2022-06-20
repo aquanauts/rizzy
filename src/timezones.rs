@@ -12,16 +12,12 @@ pub fn parse_timezone(time_zone_str: &String) -> Result<Tz, RizzyError> {
 
 pub fn guess_timezone(time_zone: String) -> Vec<String> {
     let mut dictionary = Dictionary::new();
-    for tz in build_timezone_list() {
+    for tz in chrono_tz::TZ_VARIANTS.iter().map(|x| x.to_string()) {
         dictionary.insert(tz);
     }
 
     let suggestions = dictionary.auto_suggest_alternative_words(time_zone);
     suggestions.unwrap_or_default()
-}
-
-fn build_timezone_list() -> Vec<String> {
-    chrono_tz::TIMEZONES.keys().map(|x| x.to_string()).collect()
 }
 
 #[cfg(test)]
