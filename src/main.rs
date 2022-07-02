@@ -4,10 +4,14 @@ use std::fs::File;
 use std::io;
 use std::io::BufRead;
 use std::path::Path;
+use std::process::exit;
 
+use ::rizzy::timezones::parse_timezone;
+use ::rizzy::RizzyError;
 use chrono_tz::America::{Chicago, New_York};
 use chrono_tz::Tz;
 use clap::{crate_authors, crate_description, crate_version, AppSettings, Parser};
+use eyre::Context;
 
 use crate::rizzy::Rizzy;
 
@@ -40,59 +44,18 @@ struct Opts {
     file: Vec<String>,
 }
 
-fn parse_timezone(time_zone_str: &String) -> Tz {
-    match time_zone_str.parse() {
-        Ok(res) => res,
-        Err(e) => panic!(
-            "Could not parse timezone: {}, Error: {}",
-            time_zone_str,
-            e.to_string()
-        ),
-    }
-}
-
-fn get_timezone(opts: &Opts) -> Tz {
-    match opts {
-        Opts {
-            nyc: true,
-            chi: true,
-            ..
-        } => panic!("cannot use more than one timezone override"),
-        Opts {
-            nyc: true,
-            chi: false,
-            zone: None,
-            ..
-        } => New_York,
-        Opts {
-            nyc: false,
-            chi: true,
-            zone: None,
-            ..
-        } => Chicago,
-        Opts {
-            nyc: true,
-            chi: false,
-            zone: Some(_),
-            ..
-        } => panic!("cannot supply --zone and an override"),
-        Opts {
-            nyc: false,
-            chi: true,
-            zone: Some(_),
-            ..
-        } => panic!("cannot supply --zone and an override"),
-        Opts {
-            nyc: false,
-            chi: false,
-            zone: Some(tz_string),
-            ..
-        } => parse_timezone(&tz_string),
-        Opts {
-            nyc: false,
-            chi: false,
-            ..
-        } => Chicago,
+fn get_timezone(Opts { nyc, chi, zone, .. }: &Opts) -> Result<Tz, RizzyError> {
+    match (nyc, chi, zone) {
+        (true, true, _) => Err(RizzyError::InvalidArg(
+            "Cannot use more than one timezone override".to_string(),
+        )),
+        (true, false, None) => Ok(New_York),
+        (false, true, None) => Ok(Chicago),
+        (true, false, Some(_)) | (false, true, Some(_)) => Err(RizzyError::InvalidArg(
+            "Cannot supply --zone and an override".to_string(),
+        )),
+        (false, false, Some(tz_string)) => parse_timezone(&tz_string),
+        (false, false, None) => Ok(Chicago),
     }
 }
 
@@ -105,9 +68,10 @@ where
     Ok(io::BufReader::new(file).lines())
 }
 
-fn main() {
+fn run() -> eyre::Result<()> {
     let opts: Opts = Opts::parse();
-    let rizzy = Rizzy::new(get_timezone(&opts), opts.format, opts.convert_epoch_nanos);
+    let timezone = get_timezone(&opts)?;
+    let rizzy = Rizzy::new(timezone, opts.format, opts.convert_epoch_nanos);
 
     if opts.file.is_empty() {
         for line in io::stdin().lock().lines() {
@@ -115,13 +79,19 @@ fn main() {
         }
     } else {
         for file in opts.file {
-            if let Ok(lines) = read_lines(&file) {
-                for line in lines {
-                    println!("{}", rizzy.handle_line(&line.unwrap()));
-                }
-            } else {
-                panic!("Failed to open file '{}'", file);
+            let lines =
+                read_lines(&file).with_context(|| format!("Failed to open file '{}'", file))?;
+            for line in lines {
+                println!("{}", rizzy.handle_line(&line.unwrap()));
             }
         }
+    }
+    Ok(())
+}
+
+fn main() {
+    if let Err(e) = run() {
+        eprintln!("[rizzy] Error: {e}");
+        exit(1);
     }
 }

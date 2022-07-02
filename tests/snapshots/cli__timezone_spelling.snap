@@ -1,0 +1,8 @@
+---
+source: tests/cli.rs
+assertion_line: 13
+expression: stderr
+
+---
+[rizzy] Error: Unknown timezone 'America/NewYork', did you mean: ["America/New_York"]
+

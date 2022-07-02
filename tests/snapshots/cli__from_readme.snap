@@ -1,0 +1,10 @@
+---
+source: tests/cli.rs
+assertion_line: 30
+expression: stdout
+
+---
+# For the integration tests.
+2021-09-17T12:28:07-05:00 INFO Running on slurm - limited math CPU usage by a SLURM_CPUS_ON_NODE of 3
+2021-09-17T12:30:12-05:00 INFO Initializing Environment. Using Environment.V5_C_PROD
+
