@@ -9,7 +9,7 @@ use std::process::exit;
 use ::rizzy::timezones::parse_timezone;
 use ::rizzy::RizzyError;
 use chrono_tz::America::{Chicago, New_York};
-use chrono_tz::Tz;
+use chrono_tz::{Tz, UTC};
 use clap::{crate_authors, crate_description, crate_version, AppSettings, Parser};
 use eyre::Context;
 
@@ -31,6 +31,9 @@ struct Opts {
     /// Use Chicago timestamp
     #[clap(long)]
     chi: bool,
+    /// Use UTC timestamp
+    #[clap(long)]
+    utc: bool,
     /// use ZONE instead of local zone
     #[clap(short, long)]
     zone: Option<String>,
@@ -44,18 +47,24 @@ struct Opts {
     file: Vec<String>,
 }
 
-fn get_timezone(Opts { nyc, chi, zone, .. }: &Opts) -> Result<Tz, RizzyError> {
-    match (nyc, chi, zone) {
-        (true, true, _) => Err(RizzyError::InvalidArg(
+fn get_timezone(Opts { nyc, chi, utc, zone, .. }: &Opts) -> Result<Tz, RizzyError> {
+    if *nyc as i8 + *chi as i8 + *utc as i8 + zone.is_some() as i8 > 1 {
+        return Err(RizzyError::InvalidArg(
             "Cannot use more than one timezone override".to_string(),
-        )),
-        (true, false, None) => Ok(New_York),
-        (false, true, None) => Ok(Chicago),
-        (true, false, Some(_)) | (false, true, Some(_)) => Err(RizzyError::InvalidArg(
-            "Cannot supply --zone and an override".to_string(),
-        )),
-        (false, false, Some(tz_string)) => parse_timezone(&tz_string),
-        (false, false, None) => Ok(Chicago),
+        ))
+    }
+    if *nyc {
+        return Ok(New_York)
+    }
+    if *chi {
+        return Ok(Chicago)
+    }
+    if *utc {
+        return Ok(UTC)
+    }
+    return match zone {
+        Some(tz_string) => parse_timezone(&tz_string),
+        None => Ok(Chicago)
     }
 }
 
