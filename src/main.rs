@@ -47,24 +47,24 @@ struct Opts {
     file: Vec<String>,
 }
 
-fn get_timezone(Opts { nyc, chi, utc, zone, .. }: &Opts) -> Result<Tz, RizzyError> {
-    if *nyc as i8 + *chi as i8 + *utc as i8 + zone.is_some() as i8 > 1 {
-        return Err(RizzyError::InvalidArg(
+fn get_timezone(
+    Opts {
+        nyc,
+        chi,
+        utc,
+        zone,
+        ..
+    }: &Opts,
+) -> Result<Tz, RizzyError> {
+    match (nyc, chi, utc, zone) {
+        (true, false, false, None) => Ok(New_York),
+        (false, true, false, None) => Ok(Chicago),
+        (false, false, true, None) => Ok(UTC),
+        (false, false, false, None) => Ok(Chicago), // default
+        (false, false, false, Some(tz_string)) => parse_timezone(&tz_string),
+        _ => Err(RizzyError::InvalidArg(
             "Cannot use more than one timezone override".to_string(),
-        ))
-    }
-    if *nyc {
-        return Ok(New_York)
-    }
-    if *chi {
-        return Ok(Chicago)
-    }
-    if *utc {
-        return Ok(UTC)
-    }
-    return match zone {
-        Some(tz_string) => parse_timezone(&tz_string),
-        None => Ok(Chicago)
+        )),
     }
 }
 
